@@ -57,33 +57,40 @@ def evaluate(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size
 
     return precision, recall, AP, f1, ap_class
 
-def prepareDatas(imagePath, labelPath, imageName):
-    print(imagePath, labelPath, imageName)
+def prepareDatas(imagePath, labelPath):
+    # print(imagePath, labelPath, imageName)
 
-    f = open(imageName)  # 返回一个文件对象
-    line = f.readline()  # 调用文件的 readline()方法
+    # f = open(imageName)  # 返回一个文件对象
+    # line = f.readline()  # 调用文件的 readline()方法
 
-    str1 = ''
-    while line:
-        # print(line)
-        str1 += 'data/custom/images/'+line
-        line = f.readline()
-    f.close()
+    # str1 = ''
+    # while line:
+    #     # print(line)
+    #     str1 += 'data/custom/images/'+line
+    #     line = f.readline()
+    # f.close()
     # print(str1)
+
+    # f = open('data/custom/valid.txt', 'w')
+    # f.write(str1)
+    # f.close()
+    str1 = ''
+    for filename in os.listdir(imagePath):              #listdir的参数是文件夹的路径
+        path = os.path.join(imagePath,filename)
+
+        # print(filename)
+        str1 += 'data/custom/images/' + filename + '\n'
+        shutil.copy(path, 'data/custom/images')
 
     f = open('data/custom/valid.txt', 'w')
     f.write(str1)
     f.close()
 
-    for filename in os.listdir(imagePath):              #listdir的参数是文件夹的路径
-
-        # print(filename)
-        shutil.copy(imagePath+filename, 'data/custom/images')
-
     for filename in os.listdir(labelPath):
-        print(filename)
+        # print(filename)
 
-        f = open(labelPath+filename)  # 返回一个文件对象
+        path = os.path.join(labelPath,filename)
+        f = open(path)  # 返回一个文件对象
         line = f.readline()  # 调用文件的 readline()方法
 
         # str1 = imgPath + filename
@@ -167,6 +174,8 @@ if __name__ == "__main__":
     parser.add_argument("--nms_thres", type=float, default=0.5, help="iou thresshold for non-maximum suppression")
     parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
     parser.add_argument("--img_size", type=int, default=416, help="size of each image dimension")
+    parser.add_argument("--img_path", type=str, default="", help="path of image")
+    parser.add_argument("--label_path", type=str, default="", help="path of label")
     opt = parser.parse_args()
     print(opt)
 
@@ -174,7 +183,7 @@ if __name__ == "__main__":
 
     data_config = parse_data_config(opt.data_config)
 
-    prepareDatas(data_config["imagePath"], data_config["labelPath"], data_config["imagesName"])
+    prepareDatas(opt.img_path, opt.label_path)
 
     valid_path = data_config["valid"]
     class_names = load_classes(data_config["names"])
